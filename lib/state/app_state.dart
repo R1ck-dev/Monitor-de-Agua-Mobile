@@ -19,6 +19,7 @@ class AppState extends ChangeNotifier {
   List<Lembrete> _lembretes = const [];
   bool _carregando = true;
   Timer? _timerVirada;
+  Timer? _timerEsperados;
 
   WaterConfig get config => _config;
   Set<int> get coposBebidos => _coposBebidos;
@@ -28,6 +29,28 @@ class AppState extends ChangeNotifier {
   int get totalCopos => _config.totalCopos;
   int get coposRestantes =>
       (totalCopos - _coposBebidos.length).clamp(0, totalCopos);
+
+  /// Quantos copos o usuário já deveria ter bebido neste horário, segundo o
+  /// cronograma de lembretes: soma os copos de cada lembrete cujo horário já
+  /// passou. Bate 1:1 com as notificações recebidas ao longo do dia.
+  int get coposEsperados {
+    final agora = DateTime.now();
+    return coposEsperadosAte(
+      _lembretes,
+      agora.hour * 60 + agora.minute,
+      inicioMinutos: _config.inicioMinutos,
+      totalCopos: totalCopos,
+    );
+  }
+
+  /// Diferença entre o ideal para o horário e o que foi bebido. Positivo =
+  /// atrasado (deve N copos); zero = em dia; negativo = adiantado.
+  int get coposAtrasados => coposEsperados - _coposBebidos.length;
+
+  /// Um copo está "atrasado" quando já deveria ter sido bebido neste horário
+  /// (índice dentro do esperado) mas ainda não foi marcado.
+  bool estaAtrasado(int index) =>
+      index < coposEsperados && !_coposBebidos.contains(index);
 
   /// Volume consumido hoje. Modelo simples: copos bebidos × tamanho atual do
   /// copo. Consequência conhecida: mudar o tamanho do copo reescala o total do
@@ -45,6 +68,7 @@ class AppState extends ChangeNotifier {
     _coposBebidos = _preservarContagem(salvos, totalCopos);
     _carregando = false;
     _agendarViradaDeDia();
+    _agendarAtualizacaoEsperados();
     notifyListeners();
   }
 
@@ -86,6 +110,7 @@ class AppState extends ChangeNotifier {
     await _storage.salvarDiaLogico(_diaLogicoAtual());
     await _notifications.reagendar(_lembretes, copoMl: novo.copoMl);
     _agendarViradaDeDia();
+    _agendarAtualizacaoEsperados();
     notifyListeners();
   }
 
@@ -97,6 +122,7 @@ class AppState extends ChangeNotifier {
       notifyListeners();
     }
     _agendarViradaDeDia();
+    _agendarAtualizacaoEsperados();
   }
 
   /// Reseta o progresso se o dia lógico (que começa na hora de início) mudou.
@@ -149,6 +175,39 @@ class AppState extends ChangeNotifier {
     _timerVirada = Timer(espera, aoRetomar);
   }
 
+  /// Agenda um refresh para o próximo horário de lembrete, de modo que o
+  /// "ideal até agora" no cabeçalho avance sozinho com o passar do tempo,
+  /// mesmo sem o usuário tocar em nada. Só notifica; não altera dados.
+  void _agendarAtualizacaoEsperados() {
+    _timerEsperados?.cancel();
+    final agora = DateTime.now();
+    final minutosAgora = agora.hour * 60 + agora.minute;
+    // Lembretes estão em ordem crescente: o primeiro ainda futuro é o próximo
+    // instante em que [coposEsperados] muda dentro do dia atual.
+    int? proximo;
+    for (final l in _lembretes) {
+      if (l.minutosDoDia > minutosAgora) {
+        proximo = l.minutosDoDia;
+        break;
+      }
+    }
+    // Sem lembretes futuros hoje: nada muda até a virada do dia, já coberta
+    // por [_agendarViradaDeDia].
+    if (proximo == null) return;
+    final alvo = DateTime(
+      agora.year,
+      agora.month,
+      agora.day,
+      proximo ~/ 60,
+      proximo % 60,
+    );
+    final espera = alvo.difference(agora) + const Duration(seconds: 2);
+    _timerEsperados = Timer(espera, () {
+      notifyListeners();
+      _agendarAtualizacaoEsperados();
+    });
+  }
+
   /// Data (yyyy-MM-dd) do "dia lógico" atual. O limite entre um dia e outro é a
   /// hora de início configurada — antes dela, ainda conta como o dia anterior.
   String _diaLogicoAtual() {
@@ -168,6 +227,7 @@ class AppState extends ChangeNotifier {
   @override
   void dispose() {
     _timerVirada?.cancel();
+    _timerEsperados?.cancel();
     super.dispose();
   }
 }

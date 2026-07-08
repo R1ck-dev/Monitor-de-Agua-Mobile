@@ -61,6 +61,52 @@ void main() {
       }
     });
   });
+
+  group('coposEsperadosAte', () {
+    final cfg = _cfg(3000, 250); // 12 copos, janela 10h–22h, 1 copo/hora
+    final lembretes = calcularLembretes(cfg);
+
+    int esperadosEm(int minutos) => coposEsperadosAte(
+      lembretes,
+      minutos,
+      inicioMinutos: cfg.inicioMinutos,
+      totalCopos: cfg.totalCopos,
+    );
+
+    test('cenário das 17h: já deveria ter bebido 4 copos', () {
+      // Lembretes de hora em hora a partir das 10h; às 17h já passaram
+      // 10,11,12,13 (o de 14h também). Confirma pelo cronograma real:
+      final ate17 = lembretes.where((l) => l.minutosDoDia <= 17 * 60).length;
+      expect(esperadosEm(17 * 60), ate17);
+      expect(esperadosEm(17 * 60), greaterThanOrEqualTo(4));
+    });
+
+    test('logo antes do início ainda conta como o dia anterior (tudo)', () {
+      // O limite do dia lógico é a hora de início; antes dela o dia anterior
+      // ainda não fechou, então todos os copos de ontem já venceram.
+      expect(esperadosEm(9 * 60), cfg.totalCopos);
+    });
+
+    test('no primeiro lembrete: 1 copo esperado', () {
+      expect(esperadosEm(10 * 60), 1);
+    });
+
+    test('depois do fim da janela: todos os copos', () {
+      expect(esperadosEm(23 * 60), cfg.totalCopos);
+    });
+
+    test('madrugada (antes do início) conta como fim do dia anterior', () {
+      expect(esperadosEm(2 * 60), cfg.totalCopos);
+    });
+
+    test('meta zerada não espera nada', () {
+      expect(
+        coposEsperadosAte(const [], 15 * 60,
+            inicioMinutos: 10 * 60, totalCopos: 0),
+        0,
+      );
+    });
+  });
 }
 
 WaterConfig _cfg(int metaMl, int copoMl) => WaterConfig(

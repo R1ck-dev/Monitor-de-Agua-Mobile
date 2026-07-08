@@ -52,3 +52,24 @@ List<Lembrete> calcularLembretes(WaterConfig config) {
   }
   return lembretes;
 }
+
+/// Quantos copos já deveriam ter sido bebidos em [minutosAgora] (minutos desde
+/// a meia-noite), segundo o cronograma [lembretes]: soma os copos de cada
+/// lembrete cujo horário já passou.
+///
+/// Antes de [inicioMinutos] ainda estamos no fim do dia lógico anterior, cujos
+/// lembretes já venceram todos — então o ideal é [totalCopos].
+int coposEsperadosAte(
+  List<Lembrete> lembretes,
+  int minutosAgora, {
+  required int inicioMinutos,
+  required int totalCopos,
+}) {
+  if (totalCopos <= 0) return 0;
+  if (minutosAgora < inicioMinutos) return totalCopos;
+  var esperados = 0;
+  for (final l in lembretes) {
+    if (l.minutosDoDia <= minutosAgora) esperados += l.copos;
+  }
+  return esperados;
+}

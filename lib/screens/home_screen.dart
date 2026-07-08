@@ -140,6 +140,8 @@ class _Cabecalho extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
+                    const SizedBox(height: 6),
+                    _StatusHorario(state: state),
                   ],
                 ),
               ),
@@ -149,6 +151,68 @@ class _Cabecalho extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Compara o consumo com o cronograma: mostra quantos copos o usuário já
+/// deveria ter bebido neste horário e se está atrasado, em dia ou adiantado.
+class _StatusHorario extends StatelessWidget {
+  const _StatusHorario({required this.state});
+
+  final AppState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    final esperados = state.coposEsperados;
+    final atraso = state.coposAtrasados; // >0 atrasado, 0 em dia, <0 adiantado
+
+    final IconData icone;
+    final Color cor;
+    final String texto;
+    if (atraso > 0) {
+      icone = Icons.warning_amber_rounded;
+      cor = scheme.error;
+      texto = 'Você está $atraso ${_copos(atraso)} atrás do horário';
+    } else if (atraso < 0) {
+      icone = Icons.trending_up;
+      cor = scheme.primary;
+      texto = 'Adiantado em ${-atraso} ${_copos(-atraso)}';
+    } else {
+      icone = Icons.check_circle_outline;
+      cor = scheme.primary;
+      texto = 'Em dia com o horário';
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(icone, size: 16, color: cor),
+            const SizedBox(width: 4),
+            Expanded(
+              child: Text(
+                texto,
+                style: textTheme.bodyMedium?.copyWith(
+                  color: cor,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 2),
+        Text(
+          'Ideal até agora: $esperados de ${state.totalCopos} copos',
+          style: textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+        ),
+      ],
+    );
+  }
+
+  static String _copos(int n) => n == 1 ? 'copo' : 'copos';
 }
 
 class _GradeCopos extends StatelessWidget {
@@ -177,6 +241,7 @@ class _GradeCopos extends StatelessWidget {
       itemCount: state.totalCopos,
       itemBuilder: (context, i) => WaterCup(
         bebido: state.coposBebidos.contains(i),
+        atrasado: state.estaAtrasado(i),
         onTap: () => state.alternarCopo(i),
       ),
     );

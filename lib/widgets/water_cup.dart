@@ -1,19 +1,32 @@
 import 'package:flutter/material.dart';
 
 /// Um copo desenhado. Cheio (azul) = pendente; vazio com "check" = já bebido.
-/// Tocar alterna o estado.
+/// Pendente e [atrasado] (já deveria ter sido bebido neste horário) aparece em
+/// vermelho para chamar atenção. Tocar alterna o estado.
 class WaterCup extends StatelessWidget {
-  const WaterCup({super.key, required this.bebido, required this.onTap});
+  const WaterCup({
+    super.key,
+    required this.bebido,
+    required this.onTap,
+    this.atrasado = false,
+  });
 
   final bool bebido;
+  final bool atrasado;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    // Copo pendente e vencido destaca em vermelho; os demais usam a cor da água.
+    final destaque = !bebido && atrasado ? scheme.error : scheme.primary;
     return Semantics(
       button: true,
-      label: bebido ? 'Copo bebido' : 'Copo a beber',
+      label: bebido
+          ? 'Copo bebido'
+          : atrasado
+              ? 'Copo atrasado'
+              : 'Copo a beber',
       child: InkResponse(
         onTap: onTap,
         radius: 44,
@@ -24,8 +37,8 @@ class WaterCup extends StatelessWidget {
             child: CustomPaint(
               painter: _CopoPainter(
                 bebido: bebido,
-                agua: scheme.primary,
-                contorno: bebido ? scheme.outline : scheme.primary,
+                agua: destaque,
+                contorno: bebido ? scheme.outline : destaque,
               ),
             ),
           ),
