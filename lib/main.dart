@@ -4,6 +4,7 @@ import 'screens/home_screen.dart';
 import 'services/notifications.dart';
 import 'services/storage.dart';
 import 'state/app_state.dart';
+import 'theme/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,21 +25,12 @@ class ContadorDeAguaApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const seed = Color(0xFF1E88E5); // azul água
     return MaterialApp(
       title: 'Contador de Água',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: seed),
-        useMaterial3: true,
-      ),
-      darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: seed,
-          brightness: Brightness.dark,
-        ),
-        useMaterial3: true,
-      ),
+      theme: appTheme(oceanLight, oceanLightTokens),
+      darkTheme: appTheme(oceanDark, oceanDarkTokens),
+      themeAnimationDuration: const Duration(milliseconds: 300),
       home: HomeScreen(appState: appState),
     );
   }

@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300..700,0..1,0" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+@keyframes cupPop{0%{transform:scale(1)}35%{transform:scale(1.1)}100%{transform:scale(1)}}
+@keyframes ringPop{0%{transform:scale(1)}40%{transform:scale(1.05)}100%{transform:scale(1)}}
+@keyframes confettiFall{0%{transform:translateY(-12px) rotate(0);opacity:1}100%{transform:translateY(150px) rotate(240deg);opacity:0}}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,12px)}to{opacity:1;transform:translate(-50%,0)}}
+.scr::-webkit-scrollbar{width:0;height:0}
+</style>
+</helmet>
+<div style="{{ rootStyle }}">
+
+  <!-- prototype controls -->
+  <div style="display:flex;gap:10px;align-items:center;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:6px;box-shadow:var(--card-shadow)">
+    <div style="display:flex;background:var(--surface2);border-radius:11px;padding:3px;gap:2px">
+      <button type="button" onClick="{{ onHome }}" style="{{ homeTabStyle }}">Home</button>
+      <button type="button" onClick="{{ onSettings }}" style="{{ cfgTabStyle }}">Config</button>
+    </div>
+    <button type="button" onClick="{{ onToggleTheme }}" style="display:flex;align-items:center;gap:6px;background:var(--surface2);border:none;border-radius:11px;padding:7px 12px;cursor:pointer;color:var(--text);font:700 13px var(--font)">
+      <span style="font-family:var(--msr);font-variation-settings:'FILL' 1,'wght' 500;font-size:18px;line-height:1;color:var(--primary)">{{ themeIcon }}</span>{{ themeLabel }}
+    </button>
+  </div>
+
+  <!-- phone -->
+  <div style="width:392px;padding:12px;background:#0a0d12;border-radius:46px;box-shadow:0 34px 60px -22px rgba(0,0,0,.5),0 10px 22px rgba(0,0,0,.22)">
+    <div style="position:relative;width:368px;height:772px;background:var(--bg);border-radius:36px;overflow:hidden;color:var(--text)">
+
+      <!-- status bar -->
+      <div style="height:34px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;font:700 13px var(--font);color:var(--text)">
+        <span>{{ nowClock }}</span>
+        <span style="display:flex;gap:7px;align-items:center">
+          <span style="font-family:var(--msr);font-variation-settings:'FILL' 1,'wght' 500;font-size:16px;line-height:1">network_cell</span>
+          <span style="font-family:var(--msr);font-variation-settings:'FILL' 1,'wght' 500;font-size:16px;line-height:1">wifi</span>
+          <span style="font-family:var(--msr);font-variation-settings:'FILL' 1,'wght' 500;font-size:17px;line-height:1">battery_full</span>
+        </span>
+      </div>
+
+      <!-- scroll region -->
+      <div class="scr" style="position:absolute;top:34px;left:0;right:0;bottom:0;overflow-y:auto;overflow-x:hidden">
+
+        <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+          <!-- app bar -->
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 18px 8px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-family:var(--msr);font-variation-settings:'FILL' 1,'wght' 600;font-size:25px;line-height:1;color:var(--primary)">water_drop</span>
+              <span style="font:800 20px var(--font);color:var(--text);letter-spacing:-.02em">Contador de Água</span>
+            </div>
+            <button type="button" onClick="{{ onSettings }}" aria-label="Abrir configurações" style="appearance:none;border:none;background:var(--surface2);width:40px;height:40px;border-radius:13px;display:flex;align-items:center;justify-content:center;cursor:pointer">
+              <span style="font-family:var(--msr);font-variation-settings:'FILL' 0,'wght' 500;font-size:22px;line-height:1;color:var(--text-dim)">settings</span>
+            </button>
+          </div>
+
+          <!-- progress header -->
+          <div style="margin:6px 16px 0;padding:20px;background:var(--surface);border-radius:26px;box-shadow:var(--card-shadow);display:flex;gap:18px;align-items:center;position:relative">
+            <div style="{{ ringWrapStyle }}">
+              <svg width="132" height="132" viewBox="0 0 120 120" style="display:block">
+                <defs>
+                  <linearGradient id="{{ ringGradId }}" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0" stop-color="{{ ringFrom }}"></stop>
+                    <stop offset="1" stop-color="{{ ringTo }}"></stop>
+                  </linearGradient>
+                </defs>
+                <circle cx="60" cy="60" r="52" fill="none" stroke="var(--ring-track)" stroke-width="12"></circle>
+                <circle cx="60" cy="60" r="52" fill="none" stroke="{{ ringStroke }}" stroke-width="12" stroke-linecap="round" transform="rotate(-90 60 60)" style="{{ ringCircleStyle }}"></circle>
+              </svg>
+              <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+                <div style="font:800 30px/1 var(--font);color:var(--text);letter-spacing:-.02em">{{ percentLabel }}<span style="font-size:15px;font-weight:700;color:var(--text-dim)">%</span></div>
+              </div>
+              <div style="position:absolute;inset:-8px;overflow:visible;pointer-events:none">
+                <sc-if value="{{ celebrate }}" hint-placeholder-val="{{ false }}">
+                  <sc-for list="{{ confetti }}" as="c" hint-placeholder-count="0">
+                    <span style="{{ c.style }}"></span>
+                  </sc-for>
+                </sc-if>
+              </div>
+            </div>
+            <div style="flex:1;min-width:0">
+              <div style="font:800 28px/1 var(--font);color:var(--text);letter-spacing:-.02em">{{ cupsHead }}</div>
+              <div style="font:600 13px var(--font);color:var(--text-dim);margin-top:4px">copos hoje</div>
+              <div style="height:1px;background:var(--border);margin:13px 0"></div>
+              <div style="font:700 15px var(--font);color:var(--text)">{{ mlLabel }}</div>
+              <div style="font:600 12px var(--font);color:var(--text-dim);margin-top:4px">{{ remainingLabel }}</div>
+            </div>
+          </div>
+
+          <!-- schedule status -->
+          <div style="margin:12px 16px 0;display:flex;gap:11px;align-items:center;padding:13px 15px;background:var(--status-bg);border-radius:16px;transition:background .35s ease">
+            <span style="font-family:var(--msr);font-variation-settings:'FILL' 1,'wght' 600;font-size:24px;line-height:1;color:var(--status);transition:color .35s ease">{{ statusIcon }}</span>
+            <div style="min-width:0">
+              <div style="font:700 14px var(--font);color:var(--status);transition:color .35s ease">{{ statusLabel }}</div>
+              <div style="font:600 12px var(--font);color:var(--text-dim);margin-top:2px">{{ statusSub }}</div>
+            </div>
+          </div>
+
+          <!-- cups -->
+          <div style="display:flex;align-items:baseline;justify-content:space-between;padding:20px 20px 8px">
+            <span style="font:700 12px var(--font);letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim)">Copos de hoje</span>
+            <span style="font:600 12px var(--font);color:var(--text-faint)">{{ gridHint }}</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:2px 20px 130px">
+            <sc-for list="{{ cups }}" as="cup" hint-placeholder-count="12">
+              <button type="button" aria-label="{{ cup.aria }}" onClick="{{ cup.onTap }}" style="appearance:none;border:none;background:transparent;padding:0;cursor:pointer;display:flex;align-items:flex-end;justify-content:center;aspect-ratio:1;position:relative;-webkit-tap-highlight-color:transparent">
+                <div style="{{ cup.cupStyle }}">
+                  <div style="{{ cup.waterStyle }}">
+                    <div style="position:absolute;left:0;right:0;top:0;height:3px;background:rgba(255,255,255,.42)"></div>
+                  </div>
+                  <div style="position:absolute;left:15%;top:12%;bottom:24%;width:10%;border-radius:40px;background:linear-gradient(rgba(255,255,255,.65),rgba(255,255,255,0));opacity:var(--reflect-op);pointer-events:none"></div>
+                  <sc-if value="{{ cup.showCheck }}" hint-placeholder-val="{{ false }}">
+                    <span style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:var(--msr);font-variation-settings:'FILL' 1,'wght' 700;font-size:22px;line-height:1;color:var(--on-primary);text-shadow:0 1px 2px rgba(0,0,0,.28)">check</span>
+                  </sc-if>
+                  <sc-if value="{{ cup.overdue }}" hint-placeholder-val="{{ false }}">
+                    <span style="position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);font-family:var(--msr);font-variation-settings:'FILL' 1,'wght' 600;font-size:17px;line-height:1;color:var(--overdue)">schedule</span>
+                  </sc-if>
+                </div>
+              </button>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;gap:8px;padding:16px 12px 8px">
+            <button type="button" onClick="{{ onHome }}" aria-label="Voltar" style="appearance:none;border:none;background:transparent;width:40px;height:40px;border-radius:13px;display:flex;align-items:center;justify-content:center;cursor:pointer">
+              <span style="font-family:var(--msr);font-variation-settings:'FILL' 0,'wght' 500;font-size:24px;line-height:1;color:var(--text)">arrow_back</span>
+            </button>
+            <span style="font:800 20px var(--font);color:var(--text);letter-spacing:-.01em">Configurações</span>
+          </div>
+
+          <div style="padding:6px 16px 40px;display:flex;flex-direction:column;gap:12px">
+
+            <!-- meta -->
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:16px 16px 16px 18px;box-shadow:var(--card-shadow);display:flex;align-items:center;justify-content:space-between;gap:12px">
+              <div style="min-width:0">
+                <div style="font:700 15px var(--font);color:var(--text)">Meta diária</div>
+                <div style="font:500 12px var(--font);color:var(--text-dim);margin-top:2px">Ex.: 3000 ml = 3 litros</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:2px;background:var(--surface2);border-radius:14px;padding:4px">
+                <button type="button" onClick="{{ onGoalDec }}" aria-label="Diminuir meta" style="appearance:none;border:none;background:transparent;width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer"><span style="font-family:var(--msr);font-variation-settings:'FILL' 1,'wght' 600;font-size:20px;line-height:1;color:var(--primary)">remove</span></button>
+                <span style="min-width:78px;text-align:center;font:800 16px var(--font);color:var(--text)">{{ goalLabel }}</span>
+                <button type="button" onClick="{{ onGoalInc }}" aria-label="Aumentar meta" style="appearance:none;border:none;background:transparent;width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer"><span style="font-family:var(--msr);font-variation-settings:'FILL' 1,'wght' 600;font-size:20px;line-height:1;color:var(--primary)">add</span></button>
+              </div>
+            </div>
+
+            <!-- copo -->
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:16px 16px 16px 18px;box-shadow:var(--card-shadow);display:flex;align-items:center;justify-content:space-between;gap:12px">
+              <div style="min-width:0">
+                <div style="font:700 15px var(--font);color:var(--text)">Capacidade do copo</div>
+                <div style="font:500 12px var(--font);color:var(--text-dim);margin-top:2px">Copo ou garrafinha · ex.: 250 ml</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:2px;background:var(--surface2);border-radius:14px;padding:4px">
+                <button type="button" onClick="{{ onCupDec }}" aria-label="Diminuir copo" style="appearance:none;border:none;background:transparent;width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer"><span style="font-family:var(--msr);font-variation-settings:'FILL' 1,'wght' 600;font-size:20px;line-height:1;color:var(--primary)">remove</span></button>
+                <span style="min-width:78px;text-align:center;font:800 16px var(--font);color:var(--text)">{{ cupLabel }}</span>
+                <button type="button" onClick="{{ onCupInc }}" aria-label="Aumentar copo" style="appearance:none;border:none;background:transparent;width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer"><span style="font-family:var(--msr);font-variation-settings:'FILL' 1,'wght' 600;font-size:20px;line-height:1;color:var(--primary)">add</span></button>
+              </div>
+            </div>
+
+            <!-- horários -->
+            <div style="display:flex;gap:12px">
+              <div style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:16px 16px 14px;box-shadow:var(--card-shadow)">
+                <div style="font:700 14px var(--font);color:var(--text)">Início do dia</div>
+                <button type="button" onClick="{{ onStart }}" style="margin-top:10px;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;background:var(--surface2);border:none;border-radius:13px;padding:11px;cursor:pointer">
+                  <span style="font-family:var(--msr);font-variation-settings:'FILL' 0,'wght' 500;font-size:19px;line-height:1;color:var(--primary)">schedule</span>
+                  <span style="font:800 17px var(--font);color:var(--text)">{{ startLabel }}</span>
+                </button>
+              </div>
+              <div style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:16px 16px 14px;box-shadow:var(--card-shadow)">
+                <div style="font:700 14px var(--font);color:var(--text)">Fim do dia</div>
+                <button type="button" onClick="{{ onEnd }}" style="margin-top:10px;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;background:var(--surface2);border:none;border-radius:13px;padding:11px;cursor:pointer">
+                  <span style="font-family:var(--msr);font-variation-settings:'FILL' 0,'wght' 500;font-size:19px;line-height:1;color:var(--primary)">bedtime</span>
+                  <span style="font:800 17px var(--font);color:var(--text)">{{ endLabel }}</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- prévia -->
+            <div style="background:linear-gradient(140deg,var(--chip-bg),var(--surface2));border:1px solid var(--border);border-radius:20px;padding:18px">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+                <span style="font-family:var(--msr);font-variation-settings:'FILL' 1,'wght' 600;font-size:20px;line-height:1;color:var(--primary)">notifications_active</span>
+                <span style="font:800 15px var(--font);color:var(--text)">Prévia dos lembretes</span>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:11px">
+                <div style="display:flex;align-items:center;justify-content:space-between">
+                  <span style="display:flex;align-items:center;gap:9px;font:600 13px var(--font);color:var(--text-dim)"><span style="font-family:var(--msr);font-variation-settings:'FILL' 0,'wght' 500;font-size:18px;line-height:1;color:var(--text-faint)">local_drink</span>Total de copos</span>
+                  <span style="font:800 14px var(--font);color:var(--text)">{{ prevCups }}</span>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between">
+                  <span style="display:flex;align-items:center;gap:9px;font:600 13px var(--font);color:var(--text-dim)"><span style="font-family:var(--msr);font-variation-settings:'FILL' 0,'wght' 500;font-size:18px;line-height:1;color:var(--text-faint)">notifications</span>Lembretes</span>
+                  <span style="font:800 14px var(--font);color:var(--text)">{{ prevReminders }}</span>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between">
+                  <span style="display:flex;align-items:center;gap:9px;font:600 13px var(--font);color:var(--text-dim)"><span style="font-family:var(--msr);font-variation-settings:'FILL' 0,'wght' 500;font-size:18px;line-height:1;color:var(--text-faint)">schedule</span>Intervalo</span>
+                  <span style="font:800 14px var(--font);color:var(--text)">{{ prevInterval }}</span>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between">
+                  <span style="display:flex;align-items:center;gap:9px;font:600 13px var(--font);color:var(--text-dim)"><span style="font-family:var(--msr);font-variation-settings:'FILL' 0,'wght' 500;font-size:18px;line-height:1;color:var(--text-faint)">layers</span>Agrupamento</span>
+                  <span style="font:800 13px var(--font);color:var(--text)">{{ prevGroup }}</span>
+                </div>
+              </div>
+            </div>
+
+            <button type="button" onClick="{{ onSave }}" style="margin-top:4px;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:16px;border:none;border-radius:18px;background:var(--primary);color:var(--on-primary);font:800 15px var(--font);cursor:pointer;box-shadow:0 12px 26px -10px var(--primary)">
+              <span style="font-family:var(--msr);font-variation-settings:'FILL' 1,'wght' 600;font-size:20px;line-height:1">check</span>Salvar
+            </button>
+          </div>
+        </sc-if>
+      </div>
+
+      <!-- FAB -->
+      <sc-if value="{{ showFab }}" hint-placeholder-val="{{ true }}">
+        <button type="button" onClick="{{ onMark }}" style="position:absolute;right:18px;bottom:26px;display:flex;align-items:center;gap:9px;padding:15px 20px;border:none;border-radius:20px;background:var(--primary);color:var(--on-primary);font:800 15px var(--font);cursor:pointer;box-shadow:0 14px 30px -10px var(--primary),0 4px 10px rgba(0,0,0,.14)">
+          <span style="font-family:var(--msr);font-variation-settings:'FILL' 1,'wght' 600;font-size:22px;line-height:1">local_drink</span>Bebi um copo
+        </button>
+      </sc-if>
+
+      <!-- toast -->
+      <sc-if value="{{ savedToast }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;left:50%;bottom:84px;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:12px 18px;border-radius:14px;font:700 13px var(--font);box-shadow:0 10px 24px rgba(0,0,0,.28);animation:toastIn .3s ease;white-space:nowrap">Configurações salvas</div>
+      </sc-if>
+
+      <!-- home indicator -->
+      <div style="position:absolute;left:50%;bottom:9px;transform:translateX(-50%);width:120px;height:5px;border-radius:3px;background:var(--text-faint);opacity:.45;pointer-events:none"></div>
+    </div>
+  </div>
+
+  <!-- states legend -->
+  <div style="display:flex;gap:16px;align-items:center;background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:12px 18px;box-shadow:var(--card-shadow)">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:7px">
+      <div style="position:relative;width:30px;aspect-ratio:var(--cup-ar);border-radius:var(--cup-rt) var(--cup-rt) var(--cup-rb) var(--cup-rb);overflow:hidden;border:2px solid var(--cup-line)">
+        <div style="position:absolute;left:-1px;right:-1px;bottom:-1px;height:13%;background:var(--water-empty)"></div>
+      </div>
+      <span style="font:600 11px var(--font);color:var(--text-dim)">A beber</span>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:7px">
+      <div style="position:relative;width:30px;aspect-ratio:var(--cup-ar);border-radius:var(--cup-rt) var(--cup-rt) var(--cup-rb) var(--cup-rb);overflow:hidden;border:2px solid var(--primary)">
+        <div style="position:absolute;left:-1px;right:-1px;bottom:-1px;height:88%;background:linear-gradient(180deg,var(--water-top),var(--water-bot))"><div style="position:absolute;left:0;right:0;top:0;height:2px;background:rgba(255,255,255,.42)"></div></div>
+        <span style="position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);font-family:var(--msr);font-variation-settings:'FILL' 1,'wght' 700;font-size:15px;line-height:1;color:var(--on-primary)">check</span>
+      </div>
+      <span style="font:600 11px var(--font);color:var(--text-dim)">Bebido</span>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:7px">
+      <div style="position:relative;width:30px;aspect-ratio:var(--cup-ar);border-radius:var(--cup-rt) var(--cup-rt) var(--cup-rb) var(--cup-rb);overflow:hidden;border:2px solid var(--overdue)">
+        <div style="position:absolute;left:-1px;right:-1px;bottom:-1px;height:13%;background:var(--overdue-water)"></div>
+        <span style="position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);font-family:var(--msr);font-variation-settings:'FILL' 1,'wght' 600;font-size:13px;line-height:1;color:var(--overdue)">schedule</span>
+      </div>
+      <span style="font:600 11px var(--font);color:var(--text-dim)">Atrasado</span>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:440,&quot;height&quot;:972},&quot;variant&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;ocean&quot;,&quot;aqua&quot;],&quot;default&quot;:&quot;ocean&quot;,&quot;tsType&quot;:&quot;'ocean'|'aqua'&quot;},&quot;startDark&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  constructor(props){
+    super(props);
+    const goal = 3000, cup = 250;
+    const total = Math.max(1, Math.ceil(goal / cup));
+    const done = Array.from({length: total}, (_, i) => i < 3);
+    this.state = {
+      dark: props.startDark === true || props.startDark === 'true',
+      screen: 'home',
+      goal, cup,
+      startMin: 8 * 60, endMin: 22 * 60, nowMin: 15 * 60,
+      done, justMarked: -1, celebrate: false, savedToast: false,
+    };
+    this._confetti = Array.from({length: 16}, (_, i) => ({
+      key: i, left: Math.round((i * 61 + 8) % 100), delay: (i % 5) * 60,
+      dur: 1000 + (i % 4) * 220, size: 5 + (i % 3) * 3, rot: (i * 53) % 360,
+    }));
+  }
+  componentWillUnmount(){ clearTimeout(this._pt); clearTimeout(this._st); }
+
+  get variant(){ return this.props.variant === 'aqua' ? 'aqua' : 'ocean'; }
+
+  theme(){
+    const P = {
+      ocean: {
+        light: { bg:'#EDF3FA', surface:'#FFFFFF', surface2:'#F2F7FC', cardShadow:'0 2px 10px rgba(10,37,64,.06), 0 1px 3px rgba(10,37,64,.05)', text:'#0B2743', textDim:'#526478', textFaint:'#95A6B8', primary:'#0E6FE0', primaryStrong:'#0A4EA6', onPrimary:'#FFFFFF', water1:'#57BBF6', water2:'#0E7CD8', overdue:'#DD4B36', overdueBg:'#FBEAE6', overdueWater:'rgba(221,75,54,.14)', success:'#10A085', border:'rgba(11,39,67,.09)', ringTrack:'#E3ECF4', chipBg:'#EAF2FB', cupLine:'rgba(11,39,67,.22)', waterEmpty:'rgba(14,111,224,.10)', reflectOp:0.55 },
+        dark: { bg:'#08182A', surface:'#0F2438', surface2:'#152E46', cardShadow:'0 6px 20px rgba(0,0,0,.4)', text:'#EAF3FB', textDim:'#9EB5CD', textFaint:'#5F778F', primary:'#3AB6F4', primaryStrong:'#7CD0FB', onPrimary:'#052238', water1:'#7CD0FB', water2:'#1E92E6', overdue:'#FF6B54', overdueBg:'#331915', overdueWater:'rgba(255,107,84,.2)', success:'#2FD3B0', border:'rgba(255,255,255,.08)', ringTrack:'rgba(255,255,255,.09)', chipBg:'#152E46', cupLine:'rgba(255,255,255,.22)', waterEmpty:'rgba(58,182,244,.14)', reflectOp:0.35 },
+      },
+      aqua: {
+        light: { bg:'#E9F6F7', surface:'#FFFFFF', surface2:'#F0FAFB', cardShadow:'0 2px 10px rgba(8,54,59,.06), 0 1px 3px rgba(8,54,59,.05)', text:'#08363B', textDim:'#496C70', textFaint:'#8BADB0', primary:'#0AA6B8', primaryStrong:'#0C7B89', onPrimary:'#FFFFFF', water1:'#37D3DF', water2:'#0AA6B8', overdue:'#E76A4E', overdueBg:'#FCEBE6', overdueWater:'rgba(231,106,78,.14)', success:'#10A085', border:'rgba(8,54,59,.09)', ringTrack:'#DAEFF0', chipBg:'#E3F7F8', cupLine:'rgba(8,54,59,.22)', waterEmpty:'rgba(10,166,184,.10)', reflectOp:0 },
+        dark: { bg:'#042321', surface:'#0B332F', surface2:'#0F453F', cardShadow:'0 6px 20px rgba(0,0,0,.42)', text:'#E6FBF8', textDim:'#8FBDB8', textFaint:'#5E8A85', primary:'#22D3C4', primaryStrong:'#5EEAD8', onPrimary:'#042321', water1:'#5EEAD8', water2:'#16B6A6', overdue:'#FF7A5E', overdueBg:'#33201A', overdueWater:'rgba(255,122,94,.2)', success:'#34D39A', border:'rgba(255,255,255,.08)', ringTrack:'rgba(255,255,255,.09)', chipBg:'#0F453F', cupLine:'rgba(255,255,255,.22)', waterEmpty:'rgba(34,211,196,.14)', reflectOp:0 },
+      },
+    };
+    return P[this.variant][this.state.dark ? 'dark' : 'light'];
+  }
+
+  winMin(){ const s = this.state; let w = s.endMin - s.startMin; if (w <= 0) w += 1440; return w; }
+  elapsedMin(){ const s = this.state; let e = s.nowMin - s.startMin; if (e < 0) e += 1440; return Math.max(0, Math.min(this.winMin(), e)); }
+  fmt(m){ m = ((m % 1440) + 1440) % 1440; const h = Math.floor(m / 60), mm = m % 60; return (h < 10 ? '0' : '') + h + ':' + (mm < 10 ? '0' : '') + mm; }
+  fmtDur(m){ m = Math.round(m); if (m >= 60){ const h = Math.floor(m / 60), mm = m % 60; return mm ? '~' + h + 'h' + (mm < 10 ? '0' + mm : mm) : '~' + h + 'h'; } return '~' + m + ' min'; }
+  statusColors(kind, c){
+    if (kind === 'behind') return { color: c.overdue, bg: c.overdueBg };
+    if (kind === 'ahead') return { color: c.success, bg: c.chipBg };
+    if (kind === 'done') return { color: c.success, bg: c.chipBg };
+    return { color: c.primary, bg: c.chipBg };
+  }
+  preview(total, win){
+    const per = win / total;
+    let group = 1, reminders = total, interval = per;
+    if (per < 45){ group = Math.ceil(45 / per); reminders = Math.ceil(total / group); interval = win / reminders; }
+    return { cups: total, reminders, interval: this.fmtDur(interval), group: group > 1 ? 'agrupa ' + group + ' copos' : '1 copo por lembrete' };
+  }
+
+  go(screen){ this.setState({ screen, savedToast: false }); }
+  resized(s, goal, cup){ const total = Math.max(1, Math.ceil(goal / cup)); let done = s.done.slice(0, total); while (done.length < total) done.push(false); const celebrate = done.length > 0 && done.every(Boolean); return { ...s, goal, cup, done, celebrate }; }
+  setGoal(d){ this.setState(s => this.resized(s, Math.max(500, Math.min(6000, s.goal + d)), s.cup)); }
+  setCup(d){ this.setState(s => this.resized(s, s.goal, Math.max(100, Math.min(1000, s.cup + d)))); }
+  cycleStart(){ this.setState(s => ({ startMin: (s.startMin + 30) % 1440 })); }
+  cycleEnd(){ this.setState(s => ({ endMin: (s.endMin + 30) % 1440 })); }
+  clearPop(){ clearTimeout(this._pt); this._pt = setTimeout(() => this.setState({ justMarked: -1 }), 520); }
+  toggleCup(i){ this.setState(s => { const done = s.done.slice(); done[i] = !done[i]; return { done, celebrate: done.every(Boolean), justMarked: done[i] ? i : -1 }; }, () => this.clearPop()); }
+  markNext(){ this.setState(s => { const idx = s.done.indexOf(false); if (idx < 0) return null; const done = s.done.slice(); done[idx] = true; return { done, celebrate: done.every(Boolean), justMarked: idx }; }, () => this.clearPop()); }
+  save(){ this.setState({ savedToast: true, screen: 'home' }); clearTimeout(this._st); this._st = setTimeout(() => this.setState({ savedToast: false }), 1900); }
+
+  renderVals(){
+    const s = this.state, c = this.theme();
+    const font = this.variant === 'aqua' ? "'Plus Jakarta Sans'" : 'Manrope';
+    const cupV = this.variant === 'aqua' ? { w:'72%', ar:'0.82', rt:'14px', rb:'22px' } : { w:'58%', ar:'0.70', rt:'10px', rb:'12px' };
+    const total = s.done.length;
+    const drunk = s.done.filter(Boolean).length;
+    const remaining = total - drunk;
+    const atGoal = total > 0 && drunk >= total;
+    const win = this.winMin();
+    const ideal = Math.round(total * (win ? this.elapsedMin() / win : 0));
+    const overdueBudget = Math.max(0, ideal - drunk);
+
+    let stKind, stLabel, stSub, stIcon;
+    if (atGoal){ stKind='done'; stLabel='Meta atingida'; stSub='Você bebeu tudo hoje. Mandou bem!'; stIcon='check_circle'; }
+    else if (drunk < ideal){ stKind='behind'; stLabel='Você está atrasado'; stSub='Ideal até agora: ' + ideal + ' de ' + total + ' · falta beber ' + (ideal - drunk); stIcon='schedule'; }
+    else if (drunk === ideal){ stKind='ontrack'; stLabel='Você está em dia'; stSub='Ideal até agora: ' + ideal + ' de ' + total + ' copos'; stIcon='task_alt'; }
+    else { stKind='ahead'; stLabel='Você está adiantado'; stSub='Ideal até agora: ' + ideal + ' de ' + total + ' copos'; stIcon='trending_up'; }
+    const st = this.statusColors(stKind, c);
+
+    const R = 52, CIRC = 2 * Math.PI * R, frac = total ? drunk / total : 0;
+
+    const vars = {
+      '--bg': c.bg, '--surface': c.surface, '--surface2': c.surface2, '--card-shadow': c.cardShadow,
+      '--text': c.text, '--text-dim': c.textDim, '--text-faint': c.textFaint,
+      '--primary': c.primary, '--primary-strong': c.primaryStrong, '--on-primary': c.onPrimary,
+      '--water-top': c.water1, '--water-bot': c.water2,
+      '--overdue': c.overdue, '--overdue-bg': c.overdueBg, '--overdue-water': c.overdueWater,
+      '--success': c.success, '--border': c.border, '--ring-track': c.ringTrack, '--chip-bg': c.chipBg,
+      '--cup-line': c.cupLine, '--water-empty': c.waterEmpty,
+      '--status': st.color, '--status-bg': st.bg,
+      '--font': font, '--msr': "'Material Symbols Rounded'",
+      '--cup-w': cupV.w, '--cup-ar': cupV.ar, '--cup-rt': cupV.rt, '--cup-rb': cupV.rb,
+      '--reflect-op': String(c.reflectOp),
+    };
+
+    let undone = 0;
+    const cups = s.done.map((d, i) => {
+      let state;
+      if (d) state = 'done'; else { undone++; state = undone <= overdueBudget ? 'overdue' : 'pending'; }
+      const border = d ? 'var(--primary)' : (state === 'overdue' ? 'var(--overdue)' : 'var(--cup-line)');
+      const wbg = d ? 'linear-gradient(180deg,var(--water-top),var(--water-bot))' : (state === 'overdue' ? 'var(--overdue-water)' : 'var(--water-empty)');
+      const cupStyle = { position:'relative', width:'var(--cup-w)', aspectRatio:'var(--cup-ar)', borderRadius:'var(--cup-rt) var(--cup-rt) var(--cup-rb) var(--cup-rb)', overflow:'hidden', border:'2px solid ' + border, transition:'border-color .35s ease' };
+      if (s.justMarked === i) cupStyle.animation = 'cupPop .5s ease';
+      const waterStyle = { position:'absolute', left:'-1px', right:'-1px', bottom:'-1px', height: d ? '88%' : '13%', background: wbg, transition:'height .6s cubic-bezier(.22,1,.36,1), background .35s ease' };
+      return { key:i, onTap:() => this.toggleCup(i), cupStyle, waterStyle, showCheck:d, overdue: state === 'overdue', aria: 'Copo ' + (i + 1) + ' de ' + total + ': ' + (d ? 'bebido' : state === 'overdue' ? 'atrasado' : 'a beber') };
+    });
+
+    const cp = [c.primary, c.water1, c.success, c.primaryStrong];
+    const confetti = s.celebrate ? this._confetti.map(f => ({ key:f.key, style:{ position:'absolute', left:f.left + '%', top:'6px', width:f.size + 'px', height:(f.size * 1.6) + 'px', borderRadius:'2px', background: cp[f.key % 4], transform:'rotate(' + f.rot + 'deg)', animation:'confettiFall ' + f.dur + 'ms ' + f.delay + 'ms cubic-bezier(.25,.7,.4,1) forwards', opacity:0 } })) : [];
+
+    const pv = this.preview(total, win);
+    const tabBase = { border:'none', borderRadius:'9px', padding:'7px 15px', font:'700 13px ' + font, cursor:'pointer', transition:'all .2s ease' };
+
+    return {
+      rootStyle: { ...vars, display:'flex', flexDirection:'column', alignItems:'center', gap:'14px', width:'fit-content' },
+      isHome: s.screen === 'home', isSettings: s.screen === 'settings',
+      onHome:() => this.go('home'), onSettings:() => this.go('settings'),
+      onToggleTheme:() => this.setState(x => ({ dark: !x.dark })),
+      themeIcon: s.dark ? 'dark_mode' : 'light_mode', themeLabel: s.dark ? 'Escuro' : 'Claro',
+      nowClock: this.fmt(s.nowMin),
+      percentLabel: String(Math.round(frac * 100)),
+      cupsHead: drunk + ' de ' + total,
+      mlLabel: Math.min(drunk * s.cup, s.goal) + ' / ' + s.goal + ' ml',
+      remainingLabel: atGoal ? 'Meta atingida' : ('Faltam ' + remaining + ' copo' + (remaining === 1 ? '' : 's')),
+      atGoal, showFab: s.screen === 'home' && !atGoal, onMark:() => this.markNext(),
+      ringGradId: 'wg_' + this.variant, ringStroke: 'url(#wg_' + this.variant + ')', ringFrom: c.water1, ringTo: c.water2,
+      ringCircleStyle: { strokeDasharray: CIRC, strokeDashoffset: CIRC * (1 - frac), transition:'stroke-dashoffset .7s cubic-bezier(.22,1,.36,1)', filter: atGoal ? 'drop-shadow(0 0 9px ' + c.water1 + ')' : 'none' },
+      ringWrapStyle: { position:'relative', width:'132px', height:'132px', flex:'none', ...(atGoal ? { animation:'ringPop .6s ease' } : {}) },
+      statusIcon: stIcon, statusLabel: stLabel, statusSub: stSub,
+      cups, confetti, celebrate: s.celebrate, gridHint: 'toque para marcar',
+      goalLabel: s.goal + ' ml', cupLabel: s.cup + ' ml', startLabel: this.fmt(s.startMin), endLabel: this.fmt(s.endMin),
+      onGoalInc:() => this.setGoal(250), onGoalDec:() => this.setGoal(-250), onCupInc:() => this.setCup(50), onCupDec:() => this.setCup(-50),
+      onStart:() => this.cycleStart(), onEnd:() => this.cycleEnd(),
+      prevCups: String(pv.cups), prevReminders: String(pv.reminders), prevInterval: pv.interval, prevGroup: pv.group,
+      onSave:() => this.save(), savedToast: s.savedToast,
+      homeTabStyle: { ...tabBase, background: s.screen === 'home' ? 'var(--primary)' : 'transparent', color: s.screen === 'home' ? 'var(--on-primary)' : 'var(--text-dim)' },
+      cfgTabStyle: { ...tabBase, background: s.screen === 'settings' ? 'var(--primary)' : 'transparent', color: s.screen === 'settings' ? 'var(--on-primary)' : 'var(--text-dim)' },
+    };
+  }
+}
+</script>
+</body>
+</html>

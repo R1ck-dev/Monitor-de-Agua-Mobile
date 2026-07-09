@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#eceff2;font-family:'Manrope',system-ui,sans-serif}
+a{color:#2a6fd6}a:hover{color:#1a54ab}
+.dv-turn{padding:44px 48px 40px;border-bottom:1px solid rgba(0,0,0,.07);scroll-margin-top:16px}
+.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 6px}
+.dv-tid{font:700 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:#0b2743;color:#fff;border-radius:4px;text-decoration:none}
+.dv-tname{font:700 14px/1.3 'Manrope',system-ui,sans-serif;color:#0b2743}
+.dv-sub{margin:0 0 26px;font:500 13px/1.5 'Manrope',system-ui,sans-serif;color:#5a6b7e;max-width:640px}
+.dv-opts{display:flex;flex-wrap:wrap;gap:44px;align-items:flex-start}
+.dv-opt{flex:none;display:flex;flex-direction:column;gap:12px;scroll-margin-top:16px}
+.dv-oid{font:700 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(11,39,67,.09);color:#0b2743;border-radius:5px;text-decoration:none}
+.dv-olabel{display:flex;align-items:center;gap:9px;font:500 12px/1.35 'Manrope',system-ui,sans-serif;color:#5a6b7e}
+.dv-opt:target .dv-oid{background:#2a6fd6;color:#fff}
+.dv-next{margin:30px 0 0;font:500 12.5px/1.6 'Manrope',system-ui,sans-serif;color:#6a7889}
+</style>
+</helmet>
+<section class="dv-turn" id="t1">
+  <div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">Contador de Água — redesign premium · duas direções</span></div>
+  <p class="dv-sub">Refino do Material 3, mantendo as 2 telas e o fluxo. Cada protótipo é interativo: toque nos copos (enchem ao beber), use o FAB “Bebi um copo”, veja o status virar de atrasado → em dia → adiantado, e a celebração ao bater a meta. Alterne Home/Config e claro/escuro nos controles acima de cada aparelho. Copo redesenhado em 3 estados — a beber / bebido / atrasado — na legenda abaixo.</p>
+  <div class="dv-opts">
+    <div class="dv-opt" id="1a">
+      <div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a>Deep Ocean — navy + ciano · Manrope · copo de vidro com reflexo</div>
+      <dc-import name="AppScreen" variant="ocean" start-dark="{{ false }}" hint-size="416px,972px"></dc-import>
+    </div>
+    <div class="dv-opt" id="1b">
+      <div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a>Aqua Fresh — teal · Plus Jakarta Sans · copo geométrico</div>
+      <dc-import name="AppScreen" variant="aqua" start-dark="{{ true }}" hint-size="416px,972px"></dc-import>
+    </div>
+  </div>
+  <p class="dv-next">Tente depois: “curti o <a class="dv-oid" href="#1a">1a</a>, mas com o copo geométrico do <a class="dv-oid" href="#1b">1b</a>” · “deixa o <a class="dv-oid" href="#1b">1b</a> em modo claro por padrão” · “gera o guia Flutter da direção <a class="dv-oid" href="#1a">1a</a>”</p>
+</section>
+</x-dc>
+</body>
+</html>
