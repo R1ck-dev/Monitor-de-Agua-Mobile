@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'app_tokens.dart';
 
@@ -70,7 +69,9 @@ const AppTokens oceanDarkTokens = AppTokens(
 // ---------------------------------------------------------------------------
 
 TextTheme appTextTheme(TextTheme base) {
-  final t = GoogleFonts.manropeTextTheme(base);
+  // Manrope empacotada como asset (fonte variável) — carrega instantânea e
+  // offline, sem a busca de rede/flash do google_fonts em runtime.
+  final t = base.apply(fontFamily: 'Manrope');
   const tnum = [FontFeature.tabularFigures()];
   return t.copyWith(
     displaySmall: t.displaySmall!.copyWith(

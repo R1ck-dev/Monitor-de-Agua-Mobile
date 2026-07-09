@@ -34,7 +34,6 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
-  google_fonts: ^6.2.1
   shared_preferences: ^2.5.5
   flutter_local_notifications: ^22.0.1
   timezone: ^0.11.1
@@ -43,6 +42,11 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+  # Gera a splash nativa (sem tela branca do SO até o primeiro frame Flutter).
+  # Config na seção `flutter_native_splash` no fim do arquivo; após alterar,
+  # rode: dart run flutter_native_splash:create
+  flutter_native_splash: ^2.4.6
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -61,6 +65,13 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+  # Manrope empacotada (fonte variável: um único arquivo cobre todos os pesos).
+  # Carrega instantânea e offline — substitui o google_fonts em runtime.
+  fonts:
+    - family: Manrope
+      fonts:
+        - asset: assets/fonts/Manrope.ttf
 
   # To add assets to your application, add an assets section, like this:
   # assets:
@@ -92,3 +103,13 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+# Splash nativa — fundo casando com a `surface` do tema (claro/escuro), para a
+# transição do launch até o primeiro frame Flutter não piscar branco.
+# Regenerar após mudar: dart run flutter_native_splash:create
+flutter_native_splash:
+  color: "#EDF3FA"
+  color_dark: "#08182A"
+  android_12:
+    color: "#EDF3FA"
+    color_dark: "#08182A"

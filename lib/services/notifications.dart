@@ -44,6 +44,7 @@ class NotificationsService {
   /// vir concedido pelo USE_EXACT_ALARM do manifesto; só abrimos as
   /// configurações se realmente não for possível agendar exato.
   Future<void> pedirPermissoes() async {
+    await inicializar();
     final android = _plugin
         .resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin
@@ -68,6 +69,7 @@ class NotificationsService {
     List<Lembrete> lembretes, {
     required int copoMl,
   }) async {
+    await inicializar();
     await _plugin.cancelAll();
 
     final detalhes = NotificationDetails(
