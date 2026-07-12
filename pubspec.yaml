@@ -1,5 +1,5 @@
 name: contador_de_agua
-description: "A new Flutter project."
+description: "Lembretes de hidratação ao longo do dia: monte seu cronograma de copos e acompanhe o consumo real contra a meta."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -47,6 +47,11 @@ dev_dependencies:
   # Config na seção `flutter_native_splash` no fim do arquivo; após alterar,
   # rode: dart run flutter_native_splash:create
   flutter_native_splash: ^2.4.6
+
+  # Gera os mipmaps do launcher a partir de assets/icon/.
+  # Config na seção `flutter_launcher_icons`; após alterar as artes, rode:
+  # dart run flutter_launcher_icons
+  flutter_launcher_icons: ^0.14.4
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -113,3 +118,17 @@ flutter_native_splash:
   android_12:
     color: "#EDF3FA"
     color_dark: "#08182A"
+
+# Ícone do launcher — gota d'água na paleta Deep Ocean.
+# `icon.png` é o legado (fundo já embutido); no adaptativo o fundo é a cor navy
+# e o foreground é só a gota, menor, para caber na zona segura de 66% que o
+# Android recorta. O monochrome alimenta os ícones temáticos do Android 13+.
+# Regenerar após mudar as artes: dart run flutter_launcher_icons
+flutter_launcher_icons:
+  image_path: "assets/icon/icon.png"
+  android: true
+  ios: true
+  remove_alpha_ios: true
+  adaptive_icon_background: "#0B2743"
+  adaptive_icon_foreground: "assets/icon/icon_foreground.png"
+  adaptive_icon_monochrome: "assets/icon/icon_monochrome.png"

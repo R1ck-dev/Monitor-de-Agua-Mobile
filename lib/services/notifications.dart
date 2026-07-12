@@ -6,7 +6,7 @@ import 'package:timezone/timezone.dart' as tz;
 import 'schedule.dart';
 
 /// Encapsula o flutter_local_notifications: inicialização, permissões e
-/// agendamento dos lembretes silenciosos com alarme exato.
+/// agendamento dos lembretes silenciosos.
 class NotificationsService {
   NotificationsService._();
   static final NotificationsService instance = NotificationsService._();
@@ -40,22 +40,14 @@ class NotificationsService {
     _inicializado = true;
   }
 
-  /// Pede permissão de notificação (Android 13+/iOS). O alarme exato costuma já
-  /// vir concedido pelo USE_EXACT_ALARM do manifesto; só abrimos as
-  /// configurações se realmente não for possível agendar exato.
+  /// Pede permissão de notificação (Android 13+/iOS).
   Future<void> pedirPermissoes() async {
     await inicializar();
     final android = _plugin
         .resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin
         >();
-    if (android != null) {
-      await android.requestNotificationsPermission();
-      final podeExato = await android.canScheduleExactNotifications();
-      if (podeExato == false) {
-        await android.requestExactAlarmsPermission();
-      }
-    }
+    await android?.requestNotificationsPermission();
 
     final ios = _plugin
         .resolvePlatformSpecificImplementation<
@@ -99,7 +91,9 @@ class NotificationsService {
         body: corpo,
         scheduledDate: _proximaOcorrencia(l.hora, l.minuto),
         notificationDetails: detalhes,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        // Inexato de propósito — ver o comentário no AndroidManifest. O
+        // `allowWhileIdle` mantém a entrega mesmo em Doze, só sem hora cravada.
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
         matchDateTimeComponents: DateTimeComponents.time, // repete diariamente
       );
     }

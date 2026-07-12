@@ -2,13 +2,14 @@
 
     <!-- Notificações (Android 13+) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
-    <!-- Alarmes exatos: garantem que o lembrete dispare no horário certo mesmo em
-         modo de baixo consumo (Doze). USE_EXACT_ALARM concede automaticamente em
-         Android 13+; SCHEDULE_EXACT_ALARM cobre 12. -->
-    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
-    <uses-permission android:name="android.permission.USE_EXACT_ALARM"/>
     <!-- Reagendar os lembretes após reiniciar o aparelho -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+
+    <!-- Sem SCHEDULE_EXACT_ALARM / USE_EXACT_ALARM de propósito: a política da
+         Play restringe alarme exato a apps cuja função principal é despertador,
+         calendário ou timer. Lembrete de hidratação não se qualifica, e declarar
+         a permissão levaria a rejeição na revisão. Usamos alarme inexato — o
+         sistema pode atrasar o lembrete alguns minutos, o que é irrelevante aqui. -->
 
     <application
         android:label="Contador de Água"
