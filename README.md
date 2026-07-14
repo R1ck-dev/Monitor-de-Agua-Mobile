@@ -45,7 +45,7 @@ O ícone em si é desenhado por [`assets/icon/gen_icon.py`](assets/icon/gen_icon
 
 ## Build de release
 
-A assinatura lê `android/key.properties`, que **não é versionado**. Sem ele o
+A assinatura lê `android/key.properties`, que não é versionado. Sem ele o
 build de release cai na chave de debug — suficiente para `flutter run --release`,
 mas não para publicar. Para gerar o bundle de upload:
 
